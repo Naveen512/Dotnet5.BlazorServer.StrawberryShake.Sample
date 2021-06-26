@@ -1,0 +1,9 @@
+query GetAllGadget{
+  fetchAllGadgets{
+    id,
+    productName,
+    brand,
+    cost,
+    type
+  }
+}

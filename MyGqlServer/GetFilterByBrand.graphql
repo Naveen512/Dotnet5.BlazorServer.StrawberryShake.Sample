@@ -1,0 +1,9 @@
+query GetFilterByBrand($brandQuery:String){
+  filterByBrand(brand:$brandQuery){
+    id,
+    productName,
+    cost,
+    type,
+    brand
+  }
+}

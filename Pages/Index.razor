@@ -1,0 +1,108 @@
+﻿@page "/"
+@inject MyGqlServerClient _myGqlServerClient;
+<div class="container">
+    <h3>Add Gadget</h3>
+    <div>
+        <div class="mb-3">
+            <label for="txtProductName" class="form-label">Product Name</label>
+            <input @bind="FormPayload.ProductName" type="text" class="form-control" id="txtProductName">
+        </div>
+        <div class="mb-3">
+            <label for="txtBrand" class="form-label">Brand</label>
+            <input @bind="FormPayload.Brand" type="text" class="form-control" id="txtBrand">
+        </div>
+        <div class="mb-3">
+            <label for="txtCost" class="form-label">Cost</label>
+            <input @bind="FormPayload.Cost" type="text" class="form-control" id="txtCost">
+        </div>
+        <div class="mb-3">
+            <label for="txtType" class="form-label">Type</label>
+            <input @bind="FormPayload.Type" type="text" class="form-control" id="txtType">
+        </div>
+        <div>
+            <button class="btn btn-dark" @onclick="Add" type="button" id="button-addon2">Add</button>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="input-group mb-3">
+        <input type="text" @bind="SearchByBrand" class="form-control" placeholder="Search By Brand">
+        <button class="btn btn-outline-primary" @onclick="OnSearch" type="button" id="button-addon2">Search</button>
+    </div>
+</div>
+<div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Brand</th>
+                <th scope="col">Cost</th>
+                <th scope="col">Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in AllGadgets)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td>@item.ProductName</td>
+                    <td>@item.Brand</td>
+                    <td>@item.Cost</td>
+                    <td>@item.Type</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@code
+{
+    public List<Gadgets> AllGadgets = new List<Gadgets>();
+    public string SearchByBrand = string.Empty;
+    public GadgetsInput FormPayload = new GadgetsInput();
+    protected override async Task OnInitializedAsync()
+    {
+        var results = await _myGqlServerClient.GetAllGadget.ExecuteAsync();
+        AllGadgets = results.Data.
+        FetchAllGadgets.Select(_ => new Gadgets
+        {
+            Brand = _.Brand,
+            Cost = _.Cost,
+            Type = _.Type,
+            Id = _.Id,
+            ProductName = _.ProductName
+        }).OrderByDescending(_ => _.Id).ToList();
+    }
+
+    public async Task OnSearch()
+    {
+        if (!string.IsNullOrEmpty(SearchByBrand))
+        {
+            var results = await _myGqlServerClient.GetFilterByBrand.ExecuteAsync(SearchByBrand);
+            AllGadgets = results.Data.
+            FilterByBrand.Select(_ => new Gadgets
+            {
+                Brand = _.Brand,
+                Cost = _.Cost,
+                Type = _.Type,
+                Id = _.Id,
+                ProductName = _.ProductName
+            }).OrderByDescending(_ => _.Id).ToList();
+        }
+    }
+
+    public async Task Add()
+    {
+
+        var result = await _myGqlServerClient.AddGadget.ExecuteAsync(FormPayload);
+        var gadget = new Gadgets
+        {
+            Id = result.Data.Save.Id,
+            Cost = result.Data.Save.Cost,
+            Brand =  result.Data.Save.Brand,
+            ProductName = result.Data.Save.ProductName,
+            Type = result.Data.Save.Type
+        };
+        AllGadgets.Insert(0, gadget);
+    }
+}

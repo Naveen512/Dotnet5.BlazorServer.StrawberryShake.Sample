@@ -1,0 +1,33 @@
+﻿schema {
+  query: QueryResolver
+  mutation: MutationResolver
+}
+
+type QueryResolver {
+  firstGadget: Gadgets
+  fetchAllGadgets: [Gadgets]
+  filterByBrand(brand: String): [Gadgets]
+}
+
+type MutationResolver {
+  save(model: GadgetsInput): Gadgets
+}
+
+input GadgetsInput {
+  id: Int!
+  productName: String
+  brand: String
+  cost: Decimal!
+  type: String
+}
+
+type Gadgets {
+  id: Int!
+  productName: String
+  brand: String
+  cost: Decimal!
+  type: String
+}
+
+"The built-in `Decimal` scalar type."
+scalar Decimal

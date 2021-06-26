@@ -1,0 +1,9 @@
+mutation AddGadget($myGadgets:GadgetsInput){
+  save(model: $myGadgets){
+    id,
+    productName,
+    brand,
+    cost,
+    type
+  }
+}
